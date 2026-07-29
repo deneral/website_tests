@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page not found — Paolo Internò</title>
+  <meta name="robots" content="noindex, follow" />
+  <link rel="canonical" href="https://www.paolointerno.com/" />
+
+  <link rel="icon" type="image/png" href="assets/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="assets/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="assets/favicon/site.webmanifest" />
+  <meta name="theme-color" content="#201a14" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .notfound {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      background: var(--paper);
+    }
+    .notfound-code {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 15px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      margin-bottom: 1rem;
+    }
+    .notfound-title {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      color: var(--ink);
+      margin-bottom: .8rem;
+    }
+    .notfound-desc {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--ink-mid);
+      max-width: 420px;
+      margin-bottom: 2rem;
+    }
+    .notfound-link {
+      display: inline-block;
+      padding: .75rem 1.6rem;
+      border: 1px solid rgba(244,236,224,.18);
+      border-radius: var(--radius);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      letter-spacing: .05em;
+      transition: background var(--tr), border-color var(--tr);
+    }
+    .notfound-link:hover {
+      background: rgba(200,154,77,.08);
+      border-color: rgba(244,236,224,.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="notfound">
+    <p class="notfound-code">404</p>
+    <h1 class="notfound-title">This page wandered off the map.</h1>
+    <p class="notfound-desc">The page you're looking for doesn't exist or has moved. You can find the full portfolio back on the home page.</p>
+    <a class="notfound-link" href="/">← Back to the portfolio</a>
+  </div>
+</body>
+</html>
