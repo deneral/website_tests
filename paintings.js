@@ -38,7 +38,7 @@ const PAINTINGS = [
     year: '2026',
     medium: 'Digital painting',
     desc: 'A sprawling ancient forest bathed in light.',
-    thumbnail: 'assets/illustrations/forest_bloomborrow_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'plains',
@@ -47,7 +47,7 @@ const PAINTINGS = [
     year: '2026',
     medium: 'Digital painting',
     desc: 'Wide-open grassland at golden hour.',
-    thumbnail: 'assets/illustrations/plains_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'umbral_rift',
@@ -56,7 +56,7 @@ const PAINTINGS = [
     year: '2026',
     medium: 'Digital painting',
     desc: 'A monumental beast-mouth cavern entrance.',
-    thumbnail: 'assets/illustrations/umbral_rift_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'ash_monolith',
@@ -65,7 +65,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A solitary ancient monolith rises from an ash-covered plain.',
-    thumbnail: 'assets/illustrations/ash_monolith_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'mana_breach',
@@ -74,7 +74,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'An arcane rupture tears through a ruined landscape.',
-    thumbnail: 'assets/illustrations/mana_breach_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'whispers_from_the_mireglass',
@@ -83,7 +83,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A reflective swamp with ghostly apparitions.',
-    thumbnail: 'assets/illustrations/whispers_from_the_mireglass_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'heartroot_vault',
@@ -92,7 +92,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A vast underground root network forms a cathedral-like natural vault.',
-    thumbnail: 'assets/illustrations/heartroot_vault_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'paradox_hollow',
@@ -101,7 +101,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A spatially distorted desert where geometry defies logic.',
-    thumbnail: 'assets/illustrations/paradox_hollow_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
   {
     id: 'the_artifact_vault',
