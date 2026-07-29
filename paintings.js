@@ -110,7 +110,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'An old catacomb guarded by creepy spiders.',
-    thumbnail: 'assets/illustrations/the_artifact_vault_final.webp',
+    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
   },
 ];
 
