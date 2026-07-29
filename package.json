@@ -1,0 +1,9 @@
+{
+  "name": "paolointerno-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static portfolio site for Paolo Internò.",
+  "scripts": {
+    "build:sitemap": "node scripts/generate-sitemap.js"
+  }
+}
