@@ -385,95 +385,9 @@ a {
   background: var(--paper)
 }
 
-.hero-plate {
-  cursor: pointer;
-  margin-bottom: 2.2rem
-}
-
-.hero-plate-frame {
-  background: var(--paper-mid);
-  border: 1px solid var(--paper-dark);
-  border-radius: var(--radius);
-  padding: 1.5rem;
-  display: flex;
-  justify-content: center;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, .45);
-  transition: border-color var(--tr)
-}
-
-.hero-plate:hover .hero-plate-frame,
-.hero-plate:focus-visible .hero-plate-frame {
-  border-color: rgba(244, 236, 224, .2)
-}
-
-.hero-plate:focus-visible {
-  outline: none
-}
-
-.hero-plate:focus-visible .hero-plate-frame {
-  outline: 2px solid rgba(244, 236, 224, .4);
-  outline-offset: 3px
-}
-
-.hero-plate-frame img {
-  max-width: 100%;
-  max-height: 64vh;
-  width: auto;
-  height: auto;
-  display: block;
-  border-radius: 1px
-}
-
-.hero-plate-caption {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  padding: 1.1rem .3rem 0
-}
-
-.hero-plate-tag {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 9px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: .4rem
-}
-
-.hero-plate-label-row {
-  display: flex;
-  align-items: baseline;
-  gap: .8rem
-}
-
-.hero-plate-num {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  letter-spacing: .1em;
-  color: var(--ink-dim)
-}
-
-.hero-plate-title {
-  font-family: var(--font-serif);
-  font-size: 23px;
-  font-style: italic;
-  color: var(--ink)
-}
-
-.hero-plate-meta {
-  font-size: 10px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--ink-dim);
-  white-space: nowrap
-}
-
 .gallery-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px
 }
 
@@ -483,12 +397,18 @@ a {
   cursor: pointer;
   background: var(--paper-dark);
   border-radius: var(--radius);
-  flex-shrink: 0;
+  aspect-ratio: 1800 / 1323;
+  /* all illustrations are exported at this ratio, so tiles show the full
+     painting with no crop — see paintings.js header */
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
   opacity: 0;
   animation: fadeUp .5s ease forwards
+}
+
+.gallery-item.hero {
+  grid-column: 1 / -1
 }
 
 .gallery-item img {
@@ -860,38 +780,9 @@ a {
     padding: 1.4rem 1rem 2.5rem
   }
 
-  .hero-plate {
-    margin-bottom: 1.4rem
-  }
-
-  .hero-plate-frame {
-    padding: .7rem
-  }
-
-  .hero-plate-frame img {
-    max-height: 42vh
-  }
-
-  .hero-plate-caption {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: .3rem;
-    padding-top: .9rem
-  }
-
-  .hero-plate-title {
-    font-size: 19px
-  }
-
   .gallery-grid {
-    gap: 8px;
-    flex-direction: column
-  }
-
-  .gallery-item {
-    flex: none !important;
-    width: 100% !important;
-    height: 220px !important
+    grid-template-columns: 1fr;
+    gap: 8px
   }
 
   .mobile-bottom-contact {
@@ -1027,12 +918,6 @@ a {
   .lightbox-nav,
   .lightbox-close-mobile {
     width: 100%
-  }
-}
-
-@media(max-width:480px) {
-  .gallery-item {
-    height: 180px !important
   }
 }
 
