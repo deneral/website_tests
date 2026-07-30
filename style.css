@@ -62,6 +62,22 @@ a {
   border: 0
 }
 
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 600;
+  pointer-events: none;
+  opacity: .05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .grain {
+    display: none
+  }
+}
+
 .site {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
@@ -447,6 +463,24 @@ a {
   font-size: 13.5px;
   font-style: italic;
   color: rgba(244, 236, 224, .94)
+}
+
+.item-plate {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  z-index: 1;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: .1em;
+  color: rgba(244, 236, 224, .55);
+  opacity: 0;
+  transition: opacity var(--tr)
+}
+
+.gallery-item:hover .item-plate,
+.gallery-item:focus-visible .item-plate {
+  opacity: 1
 }
 
 @keyframes fadeUp {

@@ -16,6 +16,10 @@
  *    - medium     : e.g. "Digital painting"
  *    - desc       : short description shown in the lightbox panel
  *    - thumbnail  : path to the single image file (grid + lightbox)
+ *    - focus      : (optional) CSS object-position, e.g. 'top', 'center 30%'.
+ *                   The grid crops aggressively on wide/short rows — set this
+ *                   whenever a painting's focal point isn't dead-center, so
+ *                   the crop never cuts through the subject. Default: center.
  * 4. Run `npm run build:sitemap` to update sitemap.xml.
  *
  * SHOWING MULTIPLE PROCESS STAGES (optional)
@@ -38,7 +42,7 @@ const PAINTINGS = [
     year: '2026',
     medium: 'Digital painting',
     desc: 'A sprawling ancient forest bathed in light.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/forest_bloomborrow_final.webp',
   },
   {
     id: 'plains',
@@ -47,7 +51,7 @@ const PAINTINGS = [
     year: '2026',
     medium: 'Digital painting',
     desc: 'Wide-open grassland at golden hour.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/plains_final.webp',
   },
   {
     id: 'umbral_rift',
@@ -56,7 +60,7 @@ const PAINTINGS = [
     year: '2026',
     medium: 'Digital painting',
     desc: 'A monumental beast-mouth cavern entrance.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/umbral_rift_final.webp',
   },
   {
     id: 'ash_monolith',
@@ -65,7 +69,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A solitary ancient monolith rises from an ash-covered plain.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/ash_monolith_final.webp',
   },
   {
     id: 'mana_breach',
@@ -74,7 +78,8 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'An arcane rupture tears through a ruined landscape.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/mana_breach_final.webp',
+    focus: 'center 25%',
   },
   {
     id: 'whispers_from_the_mireglass',
@@ -83,7 +88,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A reflective swamp with ghostly apparitions.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/whispers_from_the_mireglass_final.webp',
   },
   {
     id: 'heartroot_vault',
@@ -92,7 +97,8 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A vast underground root network forms a cathedral-like natural vault.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/heartroot_vault_final.webp',
+    focus: 'center 30%',
   },
   {
     id: 'paradox_hollow',
@@ -101,7 +107,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'A spatially distorted desert where geometry defies logic.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/paradox_hollow_final.webp',
   },
   {
     id: 'the_artifact_vault',
@@ -110,7 +116,7 @@ const PAINTINGS = [
     year: '2025',
     medium: 'Digital painting',
     desc: 'An old catacomb guarded by creepy spiders.',
-    thumbnail: 'assets/illustrations/Plains_Aethros.jpg',
+    thumbnail: 'assets/illustrations/the_artifact_vault_final.webp',
   },
 ];
 

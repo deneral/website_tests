@@ -15,14 +15,16 @@ PAINTINGS.forEach((p, i) => {
   el.className = 'gallery-item';
   el.setAttribute('role', 'button');
   el.setAttribute('tabindex', '0');
+  const plate = String(i + 1).padStart(2, '0');
   el.innerHTML = `
     <figure>
       <picture>
         <source srcset="${p.thumbnail}" type="image/webp"${isFirst ? '' : ''} />
-        <img src="${p.thumbnail}" alt="${p.title} — illustration by Paolo Internò"${isFirst ? ' fetchpriority="high"' : ' loading="lazy"'} />
+        <img src="${p.thumbnail}" alt="${p.title} — illustration by Paolo Internò" style="object-position:${p.focus || 'center'}"${isFirst ? ' fetchpriority="high"' : ' loading="lazy"'} />
       </picture>
       <figcaption>${p.title} — ${p.desc} ${p.medium} · ${p.year}.</figcaption>
     </figure>
+    <div class="item-plate">${plate}</div>
     <div class="item-overlay"><span class="item-label">${p.title}</span></div>`;
   el.style.animationDelay = Math.min(0.04 + i * 0.05, 0.5) + 's';
   grid.appendChild(el);
@@ -31,7 +33,7 @@ PAINTINGS.forEach((p, i) => {
 /* ── Gallery layout ── */
 const items = Array.from(document.querySelectorAll('.gallery-item'));
 const DESKTOP_ROW_H = 300, TABLET_ROW_H = 240;
-const desktopPatterns = [[55,25,20],[40,35,25],[30,40,30],[25,50,25]];
+const desktopPatterns = [[60,23,17],[40,35,25],[30,40,30],[25,50,25]];
 const desktopPair = [58,42];
 const tabletPairs = [['62%','38%'],['38%','62%']];
 
