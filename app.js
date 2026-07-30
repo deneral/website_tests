@@ -1,26 +1,44 @@
 /**
  * app.js — Paolo Internò portfolio
- * Builds the gallery grid from PAINTINGS (see paintings.js), lays it out in
- * an editorial row pattern, and drives the lightbox viewer.
- * Depends on paintings.js being loaded first.
+ * Renders PAINTINGS[0] as a large framed hero plate, builds the rest of the
+ * gallery grid from the remaining entries in an editorial row pattern, and
+ * drives the lightbox viewer across both. Depends on paintings.js.
  */
 'use strict';
 
 
-/* ── Build gallery from PAINTINGS data ── */
+/* ── Hero plate (PAINTINGS[0]) ── */
+const heroData = PAINTINGS[0];
+const heroEl = document.getElementById('heroPlate');
+heroEl.innerHTML = `
+  <div class="hero-plate-frame">
+    <img src="${heroData.thumbnail}" alt="${heroData.title} — illustration by Paolo Internò" fetchpriority="high" />
+  </div>
+  <div class="hero-plate-caption">
+    <div>
+      <span class="hero-plate-tag">Featured</span>
+      <div class="hero-plate-label-row">
+        <span class="hero-plate-num">01</span>
+        <span class="hero-plate-title">${heroData.title}</span>
+      </div>
+    </div>
+    <span class="hero-plate-meta">${heroData.medium} · ${heroData.year}</span>
+  </div>`;
+
+/* ── Build gallery grid from the remaining PAINTINGS ── */
+const GRID_PAINTINGS = PAINTINGS.slice(1);
 const grid = document.getElementById('galleryGrid');
-PAINTINGS.forEach((p, i) => {
-  const isFirst = i === 0;
+GRID_PAINTINGS.forEach((p, i) => {
   const el = document.createElement('article');
   el.className = 'gallery-item';
   el.setAttribute('role', 'button');
   el.setAttribute('tabindex', '0');
-  const plate = String(i + 1).padStart(2, '0');
+  const plate = String(i + 2).padStart(2, '0'); // continues the catalog numbering after the 01 hero
   el.innerHTML = `
     <figure>
       <picture>
-        <source srcset="${p.thumbnail}" type="image/webp"${isFirst ? '' : ''} />
-        <img src="${p.thumbnail}" alt="${p.title} — illustration by Paolo Internò" style="object-position:${p.focus || 'center'}"${isFirst ? ' fetchpriority="high"' : ' loading="lazy"'} />
+        <source srcset="${p.thumbnail}" type="image/webp" />
+        <img src="${p.thumbnail}" alt="${p.title} — illustration by Paolo Internò" style="object-position:${p.focus || 'center'}" loading="lazy" />
       </picture>
       <figcaption>${p.title} — ${p.desc} ${p.medium} · ${p.year}.</figcaption>
     </figure>
@@ -90,7 +108,7 @@ const data = PAINTINGS.map((p, i) => ({
   meta: p.medium + ' · ' + p.year,
   desc: p.desc,
   stages: p.stages || [{ src: p.thumbnail }],
-  el: items[i]
+  el: i === 0 ? heroEl : items[i - 1]
 }));
 
 let cur = 0, lbOpen = false;
@@ -160,9 +178,11 @@ function closeLb() {
   data[cur].el.focus();
 }
 
+heroEl.addEventListener('click', () => openLb(0));
+heroEl.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(0); } });
 items.forEach((el, i) => {
-  el.addEventListener('click', () => openLb(i));
-  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(i); } });
+  el.addEventListener('click', () => openLb(i + 1));
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLb(i + 1); } });
 });
 document.getElementById('lbClose').addEventListener('click', closeLb);
 document.getElementById('lbCloseMobile').addEventListener('click', closeLb);
