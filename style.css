@@ -397,9 +397,10 @@ a {
   cursor: pointer;
   background: var(--paper-dark);
   border-radius: var(--radius);
-  aspect-ratio: 1800 / 1323;
-  /* all illustrations are exported at this ratio, so tiles show the full
-     painting with no crop — see paintings.js header */
+  height: 300px;
+  /* fixed, capped height so a full grid of paintings can be scanned quickly
+     without scrolling through full-resolution-ratio tiles — object-fit
+     crops a little on each tile; use `focus` in paintings.js to steer it */
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -408,7 +409,8 @@ a {
 }
 
 .gallery-item.hero {
-  grid-column: 1 / -1
+  grid-column: 1 / -1;
+  height: 440px
 }
 
 .gallery-item img {
@@ -783,6 +785,14 @@ a {
   .gallery-grid {
     grid-template-columns: 1fr;
     gap: 8px
+  }
+
+  .gallery-item {
+    height: 220px
+  }
+
+  .gallery-item.hero {
+    height: 260px
   }
 
   .mobile-bottom-contact {
