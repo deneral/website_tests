@@ -30,8 +30,8 @@ PAINTINGS.forEach((p, i) => {
 
 /* ── Gallery layout ── */
 const items = Array.from(document.querySelectorAll('.gallery-item'));
-const DESKTOP_ROW_H = 300, TABLET_ROW_H = 240;
-const desktopPatterns = [[55,25,20],[40,35,25],[30,40,30],[25,50,25]];
+const DESKTOP_ROW_H = 500, TABLET_ROW_H = 340;
+const desktopPatterns = [[58,42],[45,55],[30,40,30],[25,50,25]];
 const desktopPair = [58,42];
 const tabletPairs = [['62%','38%'],['38%','62%']];
 

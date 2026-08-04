@@ -16,10 +16,6 @@
  *    - medium     : e.g. "Digital painting"
  *    - desc       : short description shown in the lightbox panel
  *    - thumbnail  : path to the single image file (grid + lightbox)
- *    - focus      : (optional) CSS object-position, e.g. 'top', 'center 30%'.
- *                   The grid crops aggressively on wide/short rows — set this
- *                   whenever a painting's focal point isn't dead-center, so
- *                   the crop never cuts through the subject. Default: center.
  * 4. Run `npm run build:sitemap` to update sitemap.xml.
  *
  * SHOWING MULTIPLE PROCESS STAGES (optional)
@@ -70,7 +66,6 @@ const PAINTINGS = [
     medium: 'Digital painting',
     desc: 'An arcane rupture tears through a ruined landscape.',
     thumbnail: 'assets/illustrations/mana_breach_final.webp',
-    focus: 'center 25%',
   },
   {
     id: 'heartroot_vault',
@@ -80,7 +75,6 @@ const PAINTINGS = [
     medium: 'Digital painting',
     desc: 'A vast underground root network forms a cathedral-like natural vault.',
     thumbnail: 'assets/illustrations/heartroot_vault_final.webp',
-    focus: 'center 30%',
   },
   {
     id: 'the_artifact_vault',
