@@ -63,15 +63,6 @@ const PAINTINGS = [
     thumbnail: 'assets/illustrations/umbral_rift_final.webp',
   },
   {
-    id: 'ash_monolith',
-    seoCategory: 'Landscape Illustration',
-    title: 'Ash Monolith',
-    year: '2025',
-    medium: 'Digital painting',
-    desc: 'A solitary ancient monolith rises from an ash-covered plain.',
-    thumbnail: 'assets/illustrations/ash_monolith_final.webp',
-  },
-  {
     id: 'mana_breach',
     seoCategory: 'Fantasy Landscape Art',
     title: 'Mana Breach',
@@ -82,15 +73,6 @@ const PAINTINGS = [
     focus: 'center 25%',
   },
   {
-    id: 'whispers_from_the_mireglass',
-    seoCategory: 'Landscape Illustration',
-    title: 'Whispers from the Mireglass',
-    year: '2025',
-    medium: 'Digital painting',
-    desc: 'A reflective swamp with ghostly apparitions.',
-    thumbnail: 'assets/illustrations/whispers_from_the_mireglass_final.webp',
-  },
-  {
     id: 'heartroot_vault',
     seoCategory: 'Environment Illustration',
     title: 'Heartroot Vault',
@@ -99,15 +81,6 @@ const PAINTINGS = [
     desc: 'A vast underground root network forms a cathedral-like natural vault.',
     thumbnail: 'assets/illustrations/heartroot_vault_final.webp',
     focus: 'center 30%',
-  },
-  {
-    id: 'paradox_hollow',
-    seoCategory: 'Landscape Illustration',
-    title: 'Paradox Hollow',
-    year: '2025',
-    medium: 'Digital painting',
-    desc: 'A spatially distorted desert where geometry defies logic.',
-    thumbnail: 'assets/illustrations/paradox_hollow_final.webp',
   },
   {
     id: 'the_artifact_vault',
