@@ -29,9 +29,35 @@ PAINTINGS.forEach((p, i) => {
 });
 
 /* ── Gallery layout ── */
-// Fixed 2-per-row grid; column width is fluid (CSS grid `1fr`), so no JS
-// sizing is needed — see .gallery-grid / .gallery-item in style.css.
+// Two items per row, widths alternating per row for an editorial (non-uniform)
+// rhythm — an odd item left over fills its row alone. Below 768px, CSS forces
+// a single full-width column per row and these inline styles are cleared.
 const items = Array.from(document.querySelectorAll('.gallery-item'));
+const ROW_PAIRS = [[60, 40], [38, 62], [52, 48], [43, 57]];
+const GAP = 10;
+
+function applyGalleryLayout() {
+  const n = items.length;
+  if (window.innerWidth <= 768) {
+    items.forEach(el => { el.style.width = ''; el.style.flex = ''; });
+    return;
+  }
+  const fullPairs = Math.floor(n / 2), remainder = n % 2;
+  for (let i = 0; i < fullPairs * 2; i++) {
+    const row = Math.floor(i / 2), col = i % 2;
+    const pct = ROW_PAIRS[row % ROW_PAIRS.length][col];
+    const width = 'calc(' + pct + '% - ' + (GAP / 2) + 'px)';
+    items[i].style.width = width;
+    items[i].style.flex = '0 0 ' + width;
+  }
+  if (remainder) {
+    items[n - 1].style.width = '100%';
+    items[n - 1].style.flex = '0 0 100%';
+  }
+}
+applyGalleryLayout();
+let _rt;
+window.addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(applyGalleryLayout, 120); });
 
 /* ── Lightbox ── */
 const data = PAINTINGS.map((p, i) => ({

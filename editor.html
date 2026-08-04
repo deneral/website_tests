@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Portfolio Editor — Paolo Internò</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" />
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+
+  :root {
+    --ink: #f4ece0;
+    --ink-mid: #d9c9b3;
+    --ink-dim: #8c7d6b;
+    --paper: #201a14;
+    --paper-dark: #100c08;
+    --paper-mid: #17120d;
+    --accent: #c89a4d;
+    --danger: #d98a76;
+    --font-serif: 'Fraunces', Georgia, serif;
+    --font-sans: 'Manrope', sans-serif;
+    --radius: 3px;
+    --tr: .18s ease
+  }
+
+  html, body { height: 100%; background: var(--paper-dark); color: var(--ink) }
+  body { font-family: var(--font-sans); font-weight: 300; -webkit-font-smoothing: antialiased }
+
+  /* ── Top bar ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding: 1.1rem 1.75rem;
+    background: var(--paper);
+    border-bottom: 1px solid rgba(244,236,224,.08);
+    flex-wrap: wrap
+  }
+  .brand h1 { font-family: var(--font-serif); font-style: italic; font-weight: 500; font-size: 19px }
+  .brand span { display: block; font-size: 11px; color: var(--ink-dim); letter-spacing: .3px; margin-top: 2px }
+  .topbar-actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap }
+
+  .btn {
+    font-family: var(--font-sans); font-size: 12.5px; letter-spacing: .2px; font-weight: 500;
+    padding: .55rem 1rem; border-radius: var(--radius);
+    border: 1px solid rgba(244,236,224,.15); background: transparent; color: var(--ink-mid);
+    cursor: pointer; transition: var(--tr)
+  }
+  .btn:hover { border-color: var(--accent); color: var(--ink) }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #1a1410; font-weight: 600 }
+  .btn.primary:hover { filter: brightness(1.08) }
+  .btn.danger { color: var(--danger) }
+  .btn.danger:hover { border-color: var(--danger); color: #ffb7a3 }
+  .btn:disabled { opacity: .45; cursor: not-allowed }
+
+  /* ── Dashboard grid ── */
+  main { padding: 2rem 1.75rem 4rem; max-width: 1400px; margin: 0 auto }
+  .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: 1.1rem }
+
+  .pcard {
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    background: var(--paper-mid); aspect-ratio: 4/3; cursor: grab;
+    border: 1px solid rgba(244,236,224,.06)
+  }
+  .pcard.dragging { opacity: .35 }
+  .pcard.drop-target { outline: 2px solid var(--accent); outline-offset: -2px }
+  .pcard img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none }
+  .pcard .empty-cover { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); font-size: 11px }
+  .pcard .pinfo { position: absolute; left: 0; right: 0; bottom: 0; padding: .6rem .7rem; background: linear-gradient(to top, rgba(16,12,8,.88), transparent) }
+  .pcard .ptitle { font-family: var(--font-serif); font-style: italic; font-size: 13.5px; color: var(--ink) }
+  .pcard .pmeta { font-size: 10px; color: var(--ink-dim); margin-top: 1px }
+  .pcard .pactions { position: absolute; top: .5rem; right: .5rem; display: flex; gap: .35rem; opacity: 0; transition: opacity var(--tr) }
+  .pcard:hover .pactions { opacity: 1 }
+
+  .icon-btn {
+    width: 26px; height: 26px; border-radius: 50%; background: rgba(16,12,8,.78);
+    border: 1px solid rgba(244,236,224,.15); color: var(--ink-mid);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px
+  }
+  .icon-btn:hover { color: var(--ink); border-color: var(--accent) }
+
+  .add-tile {
+    border: 1.5px dashed rgba(244,236,224,.18); border-radius: var(--radius); aspect-ratio: 4/3;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
+    color: var(--ink-dim); cursor: pointer; transition: var(--tr)
+  }
+  .add-tile:hover { border-color: var(--accent); color: var(--accent) }
+  .add-tile .plus { font-size: 26px; line-height: 1; font-weight: 300 }
+  .add-tile span { font-size: 11.5px; letter-spacing: .3px }
+
+  .empty-state { grid-column: 1/-1; text-align: center; padding: 5rem 1rem; color: var(--ink-dim) }
+  .empty-state h2 { font-family: var(--font-serif); font-style: italic; color: var(--ink-mid); font-weight: 500; font-size: 20px; margin-bottom: .5rem }
+  .empty-state p { font-size: 13px; max-width: 380px; margin: 0 auto; line-height: 1.6 }
+
+  /* ── Panel ── */
+  .backdrop {
+    position: fixed; inset: 0; background: rgba(8,6,4,.6);
+    opacity: 0; pointer-events: none; transition: opacity .25s ease; z-index: 30
+  }
+  .backdrop.open { opacity: 1; pointer-events: auto }
+
+  .panel {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 92vw;
+    background: var(--paper); border-left: 1px solid rgba(244,236,224,.08);
+    transform: translateX(100%); transition: transform .3s cubic-bezier(.25,.46,.45,.94);
+    z-index: 31; display: flex; flex-direction: column
+  }
+  .panel.open { transform: translateX(0) }
+
+  .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.4rem; border-bottom: 1px solid rgba(244,236,224,.08) }
+  .panel-head h2 { font-family: var(--font-serif); font-style: italic; font-size: 16px; font-weight: 500 }
+  .panel-close { background: none; border: none; color: var(--ink-dim); font-size: 22px; cursor: pointer; line-height: 1; padding: .2rem }
+  .panel-close:hover { color: var(--ink) }
+
+  .panel-body { flex: 1; overflow-y: auto; padding: 1.4rem }
+
+  .field { margin-bottom: 1rem }
+  .field label { display: block; font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-dim); margin-bottom: .35rem }
+  .field input, .field textarea {
+    width: 100%; background: var(--paper-mid); border: 1px solid rgba(244,236,224,.1);
+    border-radius: var(--radius); padding: .55rem .65rem; color: var(--ink);
+    font-family: var(--font-sans); font-size: 13px; font-weight: 300
+  }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent) }
+  .field textarea { resize: vertical; min-height: 64px; line-height: 1.5 }
+  .field-row { display: flex; gap: .7rem }
+  .field-row .field { flex: 1 }
+
+  .images-label { display: flex; align-items: baseline; justify-content: space-between; margin: 1.6rem 0 .6rem }
+  .images-label label { font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-dim) }
+  .images-label .hint { font-size: 10.5px; color: var(--ink-dim) }
+
+  .image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem }
+  .image-cell { display: flex; flex-direction: column; gap: .3rem }
+  .image-tile {
+    position: relative; border-radius: var(--radius); overflow: hidden; background: var(--paper-mid);
+    aspect-ratio: 1/1; cursor: grab; border: 1px solid rgba(244,236,224,.08)
+  }
+  .image-tile.dragging { opacity: .35 }
+  .image-tile.drop-target { outline: 2px solid var(--accent); outline-offset: -2px }
+  .image-tile img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none }
+  .image-tile .cover-badge {
+    position: absolute; left: 4px; top: 4px; background: rgba(16,12,8,.8); color: var(--accent);
+    font-size: 8px; letter-spacing: .4px; text-transform: uppercase; padding: 2px 5px; border-radius: 2px
+  }
+  .image-tile .rm-btn {
+    position: absolute; right: 4px; top: 4px; width: 19px; height: 19px; border-radius: 50%;
+    background: rgba(16,12,8,.85); border: none; color: var(--ink-mid); font-size: 13px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer
+  }
+  .image-tile .rm-btn:hover { color: #ffb7a3 }
+
+  .caption-input {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(244,236,224,.1);
+    color: var(--ink-mid); font-size: 10.5px; padding: .15rem 0; font-family: var(--font-sans)
+  }
+  .caption-input:focus { outline: none; border-color: var(--accent) }
+  .caption-input::placeholder { color: var(--ink-dim) }
+
+  .dropzone {
+    border: 1.5px dashed rgba(244,236,224,.18); border-radius: var(--radius); aspect-ratio: 1/1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
+    color: var(--ink-dim); cursor: pointer; transition: var(--tr); font-size: 10px; text-align: center; padding: .3rem
+  }
+  .dropzone:hover, .dropzone.dragover { border-color: var(--accent); color: var(--accent) }
+  .dropzone .plus { font-size: 18px; line-height: 1 }
+
+  .panel-foot { padding: 1rem 1.4rem; border-top: 1px solid rgba(244,236,224,.08); display: flex; justify-content: space-between; align-items: center }
+  .autosave-note { font-size: 10px; color: var(--ink-dim) }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 1.4rem; left: 50%; transform: translateX(-50%) translateY(10px);
+    background: var(--paper-mid); border: 1px solid rgba(244,236,224,.12); color: var(--ink);
+    padding: .6rem 1.1rem; border-radius: var(--radius); font-size: 12.5px;
+    opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 50
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0) }
+
+  @media (max-width: 640px) {
+    .panel { width: 100% }
+    .image-grid { grid-template-columns: repeat(2, 1fr) }
+    main { padding: 1.4rem 1rem 3rem }
+  }
+</style>
+</head>
+<body>
+
+<input type="file" id="loadInput" accept=".js" hidden />
+<input type="file" id="imageInput" accept="image/*" multiple hidden />
+
+<header class="topbar">
+  <div class="brand">
+    <h1>Portfolio Editor</h1>
+    <span>Local draft for paintings.js — nothing here is published until you export</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn" id="loadBtn">Load paintings.js</button>
+    <button class="btn" id="resetBtn">Clear all</button>
+    <button class="btn primary" id="exportBtn">Export changes</button>
+  </div>
+</header>
+
+<main>
+  <div class="project-grid" id="grid"></div>
+</main>
+
+<div class="backdrop" id="backdrop"></div>
+<aside class="panel" id="panel">
+  <div class="panel-head">
+    <h2 id="panelTitle">New project</h2>
+    <button class="panel-close" id="panelClose" aria-label="Close">×</button>
+  </div>
+  <div class="panel-body">
+    <div class="field">
+      <label for="fTitle">Title</label>
+      <input id="fTitle" type="text" placeholder="Forest" autocomplete="off" />
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="fYear">Year</label>
+        <input id="fYear" type="text" placeholder="2026" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="fMedium">Medium</label>
+        <input id="fMedium" type="text" placeholder="Digital painting" autocomplete="off" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="fCategory">Category <span style="text-transform:none;opacity:.7">— sitemap tag</span></label>
+      <input id="fCategory" type="text" placeholder="Fantasy Landscape Illustration" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="fDesc">Description</label>
+      <textarea id="fDesc" placeholder="Short line shown in the lightbox…"></textarea>
+    </div>
+
+    <div class="images-label">
+      <label>Images</label>
+      <span class="hint">Drag to reorder — first is the cover</span>
+    </div>
+    <div class="image-grid" id="imageGrid"></div>
+  </div>
+  <div class="panel-foot">
+    <button class="btn danger" id="deleteBtn">Delete project</button>
+    <span class="autosave-note">Saves automatically</span>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+'use strict';
+
+/* ═══════════════════════ IndexedDB ═══════════════════════ */
+const DB_NAME = 'portfolio-editor', DB_VERSION = 1;
+let dbPromise = null;
+function openDb() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
+      if (!db.objectStoreNames.contains('blobs')) db.createObjectStore('blobs');
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return dbPromise;
+}
+async function idbGet(store, key) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(key);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbSet(store, key, val) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).put(val, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbDelete(store, key) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readwrite');
+    tx.objectStore(store).delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+
+/* ═══════════════════════ State & utils ═══════════════════════ */
+let projects = [];
+let panelUid = null;
+
+function uid() {
+  return (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+}
+function slugify(s) {
+  return (s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'untitled';
+}
+function sanitizeFilename(name) {
+  const dot = name.lastIndexOf('.');
+  const base = dot > 0 ? name.slice(0, dot) : name;
+  const ext = dot > 0 ? name.slice(dot) : '';
+  return (base.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'image') + ext.toLowerCase();
+}
+function escapeHtml(s) {
+  return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ═══════════════════════ Persistence ═══════════════════════ */
+let saveTimer = null;
+function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveMeta, 250); }
+
+async function saveMeta() {
+  const plain = projects.map(p => ({
+    uid: p.uid, id: p.id, title: p.title, year: p.year, medium: p.medium,
+    seoCategory: p.seoCategory, desc: p.desc,
+    images: p.images.map(im => ({
+      uid: im.uid, kind: im.kind,
+      src: im.kind === 'path' ? im.src : null,
+      name: im.kind === 'blob' ? im.name : null,
+      caption: im.caption || ''
+    }))
+  }));
+  await idbSet('meta', 'projects', plain);
+}
+
+async function loadMeta() {
+  const plain = await idbGet('meta', 'projects');
+  if (!plain || !plain.length) return false;
+  const loaded = [];
+  for (const p of plain) {
+    const images = [];
+    for (const im of p.images) {
+      if (im.kind === 'blob') {
+        const blob = await idbGet('blobs', im.uid);
+        if (!blob) continue;
+        images.push({ uid: im.uid, kind: 'blob', name: im.name, caption: im.caption, blob, url: URL.createObjectURL(blob) });
+      } else {
+        images.push({ uid: im.uid, kind: 'path', src: im.src, caption: im.caption });
+      }
+    }
+    loaded.push({ uid: p.uid, id: p.id, title: p.title, year: p.year, medium: p.medium, seoCategory: p.seoCategory, desc: p.desc, images });
+  }
+  projects = loaded;
+  return true;
+}
+
+/* ═══════════════════════ paintings.js parsing / building ═══════════════════════ */
+function parsePaintingsJs(text) {
+  const module = { exports: {} };
+  const fn = new Function('module', 'exports', text + '\n;return PAINTINGS;');
+  return fn(module, module.exports);
+}
+
+async function importProjects(arr) {
+  for (const p of projects) for (const im of p.images) {
+    if (im.kind === 'blob') { idbDelete('blobs', im.uid); if (im.url) URL.revokeObjectURL(im.url); }
+  }
+  projects = arr.map(p => {
+    const images = [];
+    const seen = new Set();
+    if (p.thumbnail) { images.push({ uid: uid(), kind: 'path', src: p.thumbnail, caption: '' }); seen.add(p.thumbnail); }
+    if (Array.isArray(p.stages)) {
+      p.stages.forEach(s => {
+        if (s && s.src && !seen.has(s.src)) {
+          images.push({ uid: uid(), kind: 'path', src: s.src, caption: s.caption || '' });
+          seen.add(s.src);
+        }
+      });
+    }
+    return {
+      uid: uid(), id: p.id || slugify(p.title), title: p.title || '', year: p.year || '',
+      medium: p.medium || '', seoCategory: p.seoCategory || '', desc: p.desc || '', images
+    };
+  });
+  renderGrid();
+  await saveMeta();
+}
+
+function buildPaintingsJs(entries) {
+  const head = '/**\n * paintings.js — Gallery data source\n * Generated by editor.html on ' + new Date().toISOString().slice(0, 10) + '.\n */\n\nconst PAINTINGS = [\n';
+  const body = entries.map(e => {
+    const lines = [
+      '    id: ' + JSON.stringify(e.id) + ',',
+      '    seoCategory: ' + JSON.stringify(e.seoCategory) + ',',
+      '    title: ' + JSON.stringify(e.title) + ',',
+      '    year: ' + JSON.stringify(e.year) + ',',
+      '    medium: ' + JSON.stringify(e.medium) + ',',
+      '    desc: ' + JSON.stringify(e.desc) + ',',
+      '    thumbnail: ' + JSON.stringify(e.thumbnail) + ','
+    ];
+    if (e.stages) {
+      lines.push('    stages: [');
+      e.stages.forEach(s => {
+        lines.push('      { src: ' + JSON.stringify(s.src) + (s.caption ? ', caption: ' + JSON.stringify(s.caption) : '') + ' },');
+      });
+      lines.push('    ],');
+    }
+    return '  {\n' + lines.join('\n') + '\n  },';
+  }).join('\n');
+  const tail = '\n];\n\nif (typeof module !== \'undefined\' && module.exports) {\n  module.exports = PAINTINGS;\n}\n';
+  return head + body + tail;
+}
+
+function buildNotes(newFileCount, projectCount) {
+  return 'Portfolio export\n================\n\n' + projectCount + ' project(s), ' + newFileCount + ' new image file(s).\n\n' +
+    'How to apply:\n' +
+    '1. Copy the files from assets/illustrations/ in this zip into your site\'s assets/illustrations/ folder.\n' +
+    '2. Replace your site\'s paintings.js with the one in this zip.\n' +
+    '3. Run "npm run build:sitemap" to refresh sitemap.xml.\n' +
+    '4. If you removed images in the editor, delete their old files from assets/illustrations/ manually — export only adds new ones.\n' +
+    '5. Deploy as usual.\n';
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+async function doExport() {
+  const usedNames = new Set();
+  projects.forEach(p => p.images.forEach(im => { if (im.kind === 'path') usedNames.add(im.src.split('/').pop()); }));
+
+  function uniqueName(name) {
+    if (!usedNames.has(name)) { usedNames.add(name); return name; }
+    const dot = name.lastIndexOf('.');
+    const base = dot > 0 ? name.slice(0, dot) : name;
+    const ext = dot > 0 ? name.slice(dot) : '';
+    let n = 2, candidate;
+    do { candidate = base + '-' + n + ext; n++; } while (usedNames.has(candidate));
+    usedNames.add(candidate);
+    return candidate;
+  }
+
+  const zip = new JSZip();
+  const illFolder = zip.folder('assets/illustrations');
+  let newFileCount = 0;
+
+  const entries = projects.map(p => {
+    const imgSrcs = p.images.map(im => {
+      if (im.kind === 'path') return im.src;
+      const finalName = uniqueName(im.name);
+      illFolder.file(finalName, im.blob);
+      newFileCount++;
+      return 'assets/illustrations/' + finalName;
+    });
+    const obj = {
+      id: p.id || slugify(p.title),
+      seoCategory: p.seoCategory || '',
+      title: p.title || '',
+      year: p.year || '',
+      medium: p.medium || '',
+      desc: p.desc || '',
+      thumbnail: imgSrcs[0] || ''
+    };
+    if (imgSrcs.length > 1) {
+      obj.stages = p.images.map((im, i) => {
+        const s = { src: imgSrcs[i] };
+        if (im.caption) s.caption = im.caption;
+        return s;
+      });
+    }
+    return obj;
+  });
+
+  zip.file('paintings.js', buildPaintingsJs(entries));
+  zip.file('EXPORT-NOTES.txt', buildNotes(newFileCount, entries.length));
+
+  const blob = await zip.generateAsync({ type: 'blob' });
+  downloadBlob(blob, 'portfolio-export-' + new Date().toISOString().slice(0, 10) + '.zip');
+}
+
+/* ═══════════════════════ Rendering: dashboard grid ═══════════════════════ */
+const gridEl = document.getElementById('grid');
+let dragSrcUid = null;
+
+function renderGrid() {
+  gridEl.innerHTML = '';
+  if (!projects.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.innerHTML = '<h2>No projects yet</h2><p>Add your first project, or load your existing paintings.js to start from your live site.</p>';
+    gridEl.appendChild(empty);
+  }
+  projects.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pcard';
+    card.draggable = true;
+    card.dataset.uid = p.uid;
+    const cover = p.images[0];
+    const coverSrc = cover ? (cover.kind === 'blob' ? cover.url : cover.src) : '';
+    card.innerHTML =
+      (cover ? '<img src="' + coverSrc + '" alt="">' : '<div class="empty-cover">No images</div>') +
+      '<div class="pactions">' +
+      '<button class="icon-btn" data-act="edit" title="Edit">✎</button>' +
+      '<button class="icon-btn" data-act="del" title="Delete">🗑</button>' +
+      '</div>' +
+      '<div class="pinfo">' +
+      '<div class="ptitle">' + escapeHtml(p.title || 'Untitled') + '</div>' +
+      '<div class="pmeta">' + escapeHtml(p.year || '') + (p.images.length ? ' · ' + p.images.length + (p.images.length === 1 ? ' image' : ' images') : '') + '</div>' +
+      '</div>';
+    card.addEventListener('click', e => {
+      if (e.target.closest('[data-act="del"]')) { e.stopPropagation(); deleteProject(p.uid); return; }
+      openPanel(p.uid);
+    });
+    attachCardDrag(card);
+    gridEl.appendChild(card);
+  });
+  const addTile = document.createElement('div');
+  addTile.className = 'add-tile';
+  addTile.innerHTML = '<div class="plus">+</div><span>New project</span>';
+  addTile.addEventListener('click', () => openPanel('NEW'));
+  gridEl.appendChild(addTile);
+}
+
+function attachCardDrag(card) {
+  card.addEventListener('dragstart', e => {
+    dragSrcUid = card.dataset.uid;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragSrcUid);
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    document.querySelectorAll('.pcard.drop-target').forEach(el => el.classList.remove('drop-target'));
+  });
+  card.addEventListener('dragover', e => {
+    e.preventDefault();
+    if (dragSrcUid && dragSrcUid !== card.dataset.uid) card.classList.add('drop-target');
+  });
+  card.addEventListener('dragleave', () => card.classList.remove('drop-target'));
+  card.addEventListener('drop', e => {
+    e.preventDefault();
+    card.classList.remove('drop-target');
+    const targetUid = card.dataset.uid;
+    if (!dragSrcUid || dragSrcUid === targetUid) return;
+    const from = projects.findIndex(p => p.uid === dragSrcUid);
+    const to = projects.findIndex(p => p.uid === targetUid);
+    if (from < 0 || to < 0) return;
+    const [item] = projects.splice(from, 1);
+    projects.splice(to, 0, item);
+    dragSrcUid = null;
+    renderGrid();
+    scheduleSave();
+  });
+}
+
+function deleteProject(targetUid) {
+  const proj = projects.find(p => p.uid === targetUid);
+  if (!proj) return;
+  if (!confirm('Delete "' + (proj.title || 'this project') + '"? This can\'t be undone.')) return;
+  proj.images.forEach(im => { if (im.kind === 'blob') { idbDelete('blobs', im.uid); if (im.url) URL.revokeObjectURL(im.url); } });
+  projects = projects.filter(p => p.uid !== targetUid);
+  renderGrid();
+  scheduleSave();
+  toast('Project deleted');
+}
+
+/* ═══════════════════════ Panel ═══════════════════════ */
+const panelEl = document.getElementById('panel');
+const backdropEl = document.getElementById('backdrop');
+const panelTitleEl = document.getElementById('panelTitle');
+const fTitle = document.getElementById('fTitle');
+const fYear = document.getElementById('fYear');
+const fMedium = document.getElementById('fMedium');
+const fCategory = document.getElementById('fCategory');
+const fDesc = document.getElementById('fDesc');
+const imageGridEl = document.getElementById('imageGrid');
+const imageInput = document.getElementById('imageInput');
+const deleteBtn = document.getElementById('deleteBtn');
+
+function openPanel(targetUid) {
+  let proj;
+  if (targetUid === 'NEW') {
+    proj = { uid: uid(), id: '', title: '', year: '', medium: '', seoCategory: '', desc: '', images: [] };
+    projects.push(proj);
+  } else {
+    proj = projects.find(p => p.uid === targetUid);
+  }
+  if (!proj) return;
+  panelUid = proj.uid;
+  panelTitleEl.textContent = targetUid === 'NEW' ? 'New project' : 'Edit project';
+  fTitle.value = proj.title || '';
+  fYear.value = proj.year || '';
+  fMedium.value = proj.medium || '';
+  fCategory.value = proj.seoCategory || '';
+  fDesc.value = proj.desc || '';
+  renderImages(proj);
+  panelEl.classList.add('open');
+  backdropEl.classList.add('open');
+  fTitle.focus();
+}
+
+function closePanel() {
+  const proj = projects.find(p => p.uid === panelUid);
+  panelEl.classList.remove('open');
+  backdropEl.classList.remove('open');
+  if (proj && !proj.title.trim() && proj.images.length === 0) {
+    projects = projects.filter(p => p.uid !== proj.uid);
+  }
+  panelUid = null;
+  renderGrid();
+  scheduleSave();
+}
+
+function bindField(input, key) {
+  input.addEventListener('input', () => {
+    const proj = projects.find(p => p.uid === panelUid);
+    if (!proj) return;
+    proj[key] = input.value;
+    if (key === 'title') proj.id = slugify(input.value);
+    scheduleSave();
+  });
+}
+bindField(fTitle, 'title');
+bindField(fYear, 'year');
+bindField(fMedium, 'medium');
+bindField(fCategory, 'seoCategory');
+bindField(fDesc, 'desc');
+
+document.getElementById('panelClose').addEventListener('click', closePanel);
+backdropEl.addEventListener('click', closePanel);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && panelEl.classList.contains('open')) closePanel(); });
+
+deleteBtn.addEventListener('click', () => {
+  const proj = projects.find(p => p.uid === panelUid);
+  if (!proj) return;
+  if (!confirm('Delete "' + (proj.title || 'this project') + '"? This can\'t be undone.')) return;
+  proj.images.forEach(im => { if (im.kind === 'blob') { idbDelete('blobs', im.uid); if (im.url) URL.revokeObjectURL(im.url); } });
+  projects = projects.filter(p => p.uid !== proj.uid);
+  panelEl.classList.remove('open');
+  backdropEl.classList.remove('open');
+  panelUid = null;
+  renderGrid();
+  scheduleSave();
+  toast('Project deleted');
+});
+
+/* ═══════════════════════ Panel: images ═══════════════════════ */
+let dragSrcImgUid = null;
+
+function renderImages(proj) {
+  imageGridEl.innerHTML = '';
+  proj.images.forEach((im, idx) => {
+    const cell = document.createElement('div');
+    cell.className = 'image-cell';
+
+    const tile = document.createElement('div');
+    tile.className = 'image-tile';
+    tile.draggable = true;
+    tile.dataset.uid = im.uid;
+    tile.innerHTML =
+      '<img src="' + (im.kind === 'blob' ? im.url : im.src) + '" alt="">' +
+      (idx === 0 ? '<span class="cover-badge">Cover</span>' : '') +
+      '<button class="rm-btn" title="Remove">×</button>';
+    tile.querySelector('.rm-btn').addEventListener('click', e => { e.stopPropagation(); removeImage(proj, im.uid); });
+    attachImageDrag(tile, proj);
+
+    const capInput = document.createElement('input');
+    capInput.className = 'caption-input';
+    capInput.type = 'text';
+    capInput.placeholder = 'Caption (optional)';
+    capInput.value = im.caption || '';
+    capInput.addEventListener('input', () => { im.caption = capInput.value; scheduleSave(); });
+
+    cell.appendChild(tile);
+    cell.appendChild(capInput);
+    imageGridEl.appendChild(cell);
+  });
+
+  const dz = document.createElement('div');
+  dz.className = 'dropzone';
+  dz.innerHTML = '<div class="plus">+</div><span>Add images</span>';
+  dz.addEventListener('click', () => { imageInput.dataset.targetUid = proj.uid; imageInput.click(); });
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    addImagesToProject(proj, e.dataTransfer.files);
+    renderImages(proj);
+    renderGrid();
+  });
+  imageGridEl.appendChild(dz);
+}
+
+function attachImageDrag(tile, proj) {
+  tile.addEventListener('dragstart', e => {
+    dragSrcImgUid = tile.dataset.uid;
+    tile.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragSrcImgUid);
+    e.stopPropagation();
+  });
+  tile.addEventListener('dragend', e => { tile.classList.remove('dragging'); e.stopPropagation(); });
+  tile.addEventListener('dragover', e => {
+    e.preventDefault(); e.stopPropagation();
+    if (dragSrcImgUid && dragSrcImgUid !== tile.dataset.uid) tile.classList.add('drop-target');
+  });
+  tile.addEventListener('dragleave', e => { tile.classList.remove('drop-target'); e.stopPropagation(); });
+  tile.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation();
+    tile.classList.remove('drop-target');
+    const targetUid = tile.dataset.uid;
+    if (!dragSrcImgUid || dragSrcImgUid === targetUid) return;
+    const from = proj.images.findIndex(i => i.uid === dragSrcImgUid);
+    const to = proj.images.findIndex(i => i.uid === targetUid);
+    if (from < 0 || to < 0) return;
+    const [item] = proj.images.splice(from, 1);
+    proj.images.splice(to, 0, item);
+    dragSrcImgUid = null;
+    renderImages(proj);
+    renderGrid();
+    scheduleSave();
+  });
+}
+
+function addImagesToProject(proj, fileList) {
+  const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  files.forEach(file => {
+    const id = uid();
+    const name = sanitizeFilename(file.name);
+    const url = URL.createObjectURL(file);
+    proj.images.push({ uid: id, kind: 'blob', name, caption: '', blob: file, url });
+    idbSet('blobs', id, file);
+  });
+  scheduleSave();
+}
+
+function removeImage(proj, imUid) {
+  const idx = proj.images.findIndex(i => i.uid === imUid);
+  if (idx < 0) return;
+  const [im] = proj.images.splice(idx, 1);
+  if (im.kind === 'blob') { idbDelete('blobs', im.uid); if (im.url) URL.revokeObjectURL(im.url); }
+  renderImages(proj);
+  renderGrid();
+  scheduleSave();
+}
+
+imageInput.addEventListener('change', () => {
+  const proj = projects.find(p => p.uid === imageInput.dataset.targetUid);
+  if (proj && imageInput.files.length) {
+    addImagesToProject(proj, imageInput.files);
+    renderImages(proj);
+    renderGrid();
+  }
+  imageInput.value = '';
+});
+
+/* ═══════════════════════ Top bar actions ═══════════════════════ */
+const loadInput = document.getElementById('loadInput');
+document.getElementById('loadBtn').addEventListener('click', () => loadInput.click());
+loadInput.addEventListener('change', async () => {
+  const file = loadInput.files[0];
+  if (!file) return;
+  if (projects.length && !confirm('This replaces everything currently in the editor with the contents of the file you pick. Continue?')) {
+    loadInput.value = '';
+    return;
+  }
+  try {
+    const text = await file.text();
+    const arr = parsePaintingsJs(text);
+    if (!Array.isArray(arr)) throw new Error('no PAINTINGS array found in that file');
+    await importProjects(arr);
+    toast('Loaded ' + arr.length + ' project' + (arr.length === 1 ? '' : 's'));
+  } catch (err) {
+    alert('Could not read that file as paintings.js: ' + err.message);
+  }
+  loadInput.value = '';
+});
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  if (!projects.length) return;
+  if (!confirm('Clear everything in the editor? This only affects this draft, not your live site.')) return;
+  for (const p of projects) for (const im of p.images) {
+    if (im.kind === 'blob') { idbDelete('blobs', im.uid); if (im.url) URL.revokeObjectURL(im.url); }
+  }
+  projects = [];
+  renderGrid();
+  await saveMeta();
+  toast('Cleared');
+});
+
+const exportBtn = document.getElementById('exportBtn');
+exportBtn.addEventListener('click', async () => {
+  if (!projects.length) { alert('Nothing to export yet.'); return; }
+  const incomplete = projects.filter(p => !p.title.trim() || p.images.length === 0);
+  if (incomplete.length && !confirm(incomplete.length + ' project(s) are missing a title or an image. Export anyway?')) return;
+  exportBtn.disabled = true;
+  exportBtn.textContent = 'Exporting…';
+  try {
+    await doExport();
+    toast('Exported — check your downloads');
+  } catch (err) {
+    alert('Export failed: ' + err.message);
+  } finally {
+    exportBtn.disabled = false;
+    exportBtn.textContent = 'Export changes';
+  }
+});
+
+/* ═══════════════════════ Toast ═══════════════════════ */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ═══════════════════════ Init ═══════════════════════ */
+(async function init() {
+  const had = await loadMeta();
+  if (!had) {
+    try {
+      const res = await fetch('paintings.js');
+      if (res.ok) {
+        const text = await res.text();
+        const arr = parsePaintingsJs(text);
+        if (Array.isArray(arr) && arr.length) await importProjects(arr);
+      }
+    } catch (e) { /* opened via file:// or paintings.js not alongside — fine, use Load button */ }
+  }
+  renderGrid();
+})();
+</script>
+</body>
+</html>
