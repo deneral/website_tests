@@ -35,9 +35,9 @@ function today() {
 }
 
 function buildImageBlock(p) {
-  // Use the largest on-page version (the lightbox image) rather than the
-  // compressed grid thumbnail, so Google Images indexes the better copy.
-  const imageSrc = (p.stages && p.stages[0] && p.stages[0].src) || p.thumbnail;
+  // images[0] is the cover — same file used on-page for the gallery grid
+  // and as the first lightbox slide.
+  const imageSrc = p.images[0].src;
   const url = `${SITE_URL}/${imageSrc}`;
   const title = `${p.title} — ${p.seoCategory} by Paolo Internò`;
   const caption = `${p.desc} ${p.medium}, ${p.year}.`;
@@ -70,6 +70,9 @@ function main() {
   for (const p of PAINTINGS) {
     if (!p.seoCategory) {
       throw new Error(`Painting "${p.id}" is missing seoCategory — add one in paintings.js before generating the sitemap.`);
+    }
+    if (!p.images || !p.images.length) {
+      throw new Error(`Painting "${p.id}" has no images — add at least one in paintings.js before generating the sitemap.`);
     }
   }
 

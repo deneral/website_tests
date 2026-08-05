@@ -8,9 +8,11 @@
 
 
 /* ── Build gallery from PAINTINGS data ── */
+// images[0] is always the cover — mirrors editor.html's model exactly.
 const grid = document.getElementById('galleryGrid');
 PAINTINGS.forEach((p, i) => {
   const isFirst = i === 0;
+  const cover = p.images[0].src;
   const el = document.createElement('article');
   el.className = 'gallery-item';
   el.setAttribute('role', 'button');
@@ -18,8 +20,8 @@ PAINTINGS.forEach((p, i) => {
   el.innerHTML = `
     <figure>
       <picture>
-        <source srcset="${p.thumbnail}" type="image/webp"${isFirst ? '' : ''} />
-        <img src="${p.thumbnail}" alt="${p.title} — illustration by Paolo Internò"${isFirst ? ' fetchpriority="high"' : ' loading="lazy"'} />
+        <source srcset="${cover}" type="image/webp"${isFirst ? '' : ''} />
+        <img src="${cover}" alt="${p.title} — illustration by Paolo Internò"${isFirst ? ' fetchpriority="high"' : ' loading="lazy"'} />
       </picture>
       <figcaption>${p.title} — ${p.desc} ${p.medium} · ${p.year}.</figcaption>
     </figure>
@@ -60,11 +62,13 @@ let _rt;
 window.addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(applyGalleryLayout, 120); });
 
 /* ── Lightbox ── */
+// Same images array the gallery grid used — every entry becomes a slide,
+// in order, exactly as arranged in editor.html.
 const data = PAINTINGS.map((p, i) => ({
   i, title: p.title,
   meta: p.medium + ' · ' + p.year,
   desc: p.desc,
-  stages: p.stages || [{ src: p.thumbnail }],
+  images: p.images,
   el: items[i]
 }));
 
@@ -81,7 +85,7 @@ const sbTitl      = document.getElementById('sbTitle');
 const sbMeta      = document.getElementById('sbMeta');
 function buildScrollArea(d) {
   lbScrollArea.innerHTML = '';
-  d.stages.forEach((s, idx) => {
+  d.images.forEach((s, idx) => {
     const wrap = document.createElement('div');
     wrap.className = 'lightbox-process-item';
     const img = document.createElement('img');
