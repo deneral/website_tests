@@ -55,7 +55,14 @@
   .btn.primary:hover { filter: brightness(1.08) }
   .btn.danger { color: var(--danger) }
   .btn.danger:hover { border-color: var(--danger); color: #ffb7a3 }
+  .btn.connected { border-color: var(--accent); color: var(--accent) }
   .btn:disabled { opacity: .45; cursor: not-allowed }
+
+  .folder-status { font-size: 11px; color: var(--ink-dim); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; text-decoration-style: dotted }
+  .folder-status:hover { color: var(--ink-mid) }
+  .folder-status.connected { color: var(--accent); text-decoration: none; cursor: default }
+  .folder-status.connected .reconnect { color: var(--ink-dim); text-decoration: underline; text-decoration-style: dotted; cursor: pointer; margin-left: .4rem }
+  .folder-status.connected .reconnect:hover { color: var(--ink-mid) }
 
   /* ── Dashboard grid ── */
   main { padding: 2rem 1.75rem 4rem; max-width: 1400px; margin: 0 auto }
@@ -135,10 +142,10 @@
   .images-label .hint { font-size: 10.5px; color: var(--ink-dim) }
 
   .image-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem }
-  .image-cell { display: flex; flex-direction: column; gap: .3rem }
+  .image-cell { display: flex; flex-direction: column; gap: .3rem; min-width: 0 }
   .image-tile {
     position: relative; border-radius: var(--radius); overflow: hidden; background: var(--paper-mid);
-    aspect-ratio: 1/1; cursor: grab; border: 1px solid rgba(244,236,224,.08)
+    aspect-ratio: 1/1; cursor: grab; border: 1px solid rgba(244,236,224,.08); min-width: 0
   }
   .image-tile.dragging { opacity: .35 }
   .image-tile.drop-target { outline: 2px solid var(--accent); outline-offset: -2px }
@@ -164,13 +171,14 @@
   .dropzone {
     border: 1.5px dashed rgba(244,236,224,.18); border-radius: var(--radius); aspect-ratio: 1/1;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
-    color: var(--ink-dim); cursor: pointer; transition: var(--tr); font-size: 10px; text-align: center; padding: .3rem
+    color: var(--ink-dim); cursor: pointer; transition: var(--tr); font-size: 10px; text-align: center; padding: .3rem;
+    min-width: 0; overflow: hidden
   }
   .dropzone:hover, .dropzone.dragover { border-color: var(--accent); color: var(--accent) }
   .dropzone .plus { font-size: 18px; line-height: 1 }
 
-  .panel-foot { padding: 1rem 1.4rem; border-top: 1px solid rgba(244,236,224,.08); display: flex; justify-content: space-between; align-items: center }
-  .autosave-note { font-size: 10px; color: var(--ink-dim) }
+  .panel-foot { padding: 1rem 1.4rem; border-top: 1px solid rgba(244,236,224,.08); display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; align-items: center }
+  .autosave-note { font-size: 10px; color: var(--ink-dim); text-align: right; flex: 1; min-width: 140px }
 
   /* ── Toast ── */
   .toast {
@@ -201,7 +209,8 @@
   <div class="topbar-actions">
     <button class="btn" id="loadBtn">Load paintings.js</button>
     <button class="btn" id="resetBtn">Clear all</button>
-    <button class="btn primary" id="exportBtn">Export changes</button>
+    <span class="folder-status" id="folderStatus"></span>
+    <button class="btn primary" id="saveBtn">Save</button>
   </div>
 </header>
 
@@ -247,7 +256,7 @@
   </div>
   <div class="panel-foot">
     <button class="btn danger" id="deleteBtn">Delete project</button>
-    <span class="autosave-note">Saves automatically</span>
+    <span class="autosave-note">Draft saves automatically — use Save (top right) to write to disk</span>
   </div>
 </aside>
 
@@ -313,10 +322,33 @@ function slugify(s) {
   return (s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'untitled';
 }
 function sanitizeFilename(name) {
+  // Every upload is converted to .webp (see resizeToWebp), so the output
+  // name always gets that extension regardless of what was dropped in.
   const dot = name.lastIndexOf('.');
   const base = dot > 0 ? name.slice(0, dot) : name;
-  const ext = dot > 0 ? name.slice(dot) : '';
-  return (base.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'image') + ext.toLowerCase();
+  return (base.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'image') + '.webp';
+}
+
+const MAX_IMAGE_DIM = 1800;   // matches the "~1800px long edge" convention in paintings.js
+const WEBP_QUALITY = 0.85;
+
+async function resizeToWebp(file, maxDim = MAX_IMAGE_DIM, quality = WEBP_QUALITY) {
+  const bitmap = await createImageBitmap(file);
+  let { width, height } = bitmap;
+  if (Math.max(width, height) > maxDim) {
+    const scale = maxDim / Math.max(width, height);
+    width = Math.max(1, Math.round(width * scale));
+    height = Math.max(1, Math.round(height * scale));
+  }
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bitmap, 0, 0, width, height);
+  if (bitmap.close) bitmap.close();
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', quality));
+  if (!blob) throw new Error('browser could not encode webp');
+  return blob;
 }
 function escapeHtml(s) {
   return (s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -407,14 +439,23 @@ function buildPaintingsJs(entries) {
   return head + body + tail;
 }
 
-function buildNotes(newFileCount, projectCount) {
-  return 'Portfolio export\n================\n\n' + projectCount + ' project(s), ' + newFileCount + ' new image file(s).\n\n' +
-    'How to apply:\n' +
-    '1. Copy the files from assets/illustrations/ in this zip into your site\'s assets/illustrations/ folder.\n' +
-    '2. Replace your site\'s paintings.js with the one in this zip.\n' +
-    '3. Run "npm run build:sitemap" to refresh sitemap.xml.\n' +
-    '4. If you removed images in the editor, delete their old files from assets/illustrations/ manually — export only adds new ones.\n' +
-    '5. Deploy as usual.\n';
+/* ═══════════════════════ sitemap.xml (mirrors scripts/generate-sitemap.js) ═══════════════════════ */
+const SITE_URL = 'https://www.paolointerno.com';
+
+function xmlEscape(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+function buildImageBlock(e) {
+  const imageSrc = e.images[0].src;
+  const url = SITE_URL + '/' + imageSrc;
+  const title = e.title + ' — ' + e.seoCategory + ' by Paolo Internò';
+  const caption = e.desc + ' ' + e.medium + ', ' + e.year + '.';
+  return '    <image:image>\n      <image:loc>' + xmlEscape(url) + '</image:loc>\n      <image:title>' + xmlEscape(title) + '</image:title>\n      <image:caption>' + xmlEscape(caption) + '</image:caption>\n    </image:image>';
+}
+function buildSitemapXml(entries) {
+  const lastmod = new Date().toISOString().slice(0, 10);
+  const blocks = entries.map(buildImageBlock).join('\n');
+  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n  <url>\n    <loc>' + SITE_URL + '/</loc>\n    <lastmod>' + lastmod + '</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>1.0</priority>\n' + blocks + '\n  </url>\n</urlset>\n';
 }
 
 function downloadBlob(blob, filename) {
@@ -425,7 +466,9 @@ function downloadBlob(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
-async function doExport() {
+/* Builds the paintings.js entries + the list of not-yet-on-disk image files
+   (already resized/webp — see resizeToWebp), shared by both export paths. */
+function buildExportPayload() {
   const usedNames = new Set();
   projects.forEach(p => p.images.forEach(im => { if (im.kind === 'path') usedNames.add(im.src.split('/').pop()); }));
 
@@ -440,9 +483,7 @@ async function doExport() {
     return candidate;
   }
 
-  const zip = new JSZip();
-  const illFolder = zip.folder('assets/illustrations');
-  let newFileCount = 0;
+  const newImages = []; // [{ relPath, blob }]
 
   const entries = projects.map(p => {
     const images = p.images.map(im => {
@@ -451,9 +492,8 @@ async function doExport() {
         src = im.src;
       } else {
         const finalName = uniqueName(im.name);
-        illFolder.file(finalName, im.blob);
-        newFileCount++;
         src = 'assets/illustrations/' + finalName;
+        newImages.push({ relPath: src, blob: im.blob });
       }
       return { src, caption: im.caption || '' };
     });
@@ -468,11 +508,97 @@ async function doExport() {
     };
   });
 
-  zip.file('paintings.js', buildPaintingsJs(entries));
-  zip.file('EXPORT-NOTES.txt', buildNotes(newFileCount, entries.length));
+  return { entries, newImages };
+}
 
+async function exportAsZip(payload) {
+  const zip = new JSZip();
+  payload.newImages.forEach(f => zip.file(f.relPath, f.blob));
+  zip.file('paintings.js', buildPaintingsJs(payload.entries));
+  zip.file('sitemap.xml', buildSitemapXml(payload.entries));
+  zip.file('EXPORT-NOTES.txt',
+    'Portfolio export\n================\n\n' + payload.entries.length + ' project(s), ' + payload.newImages.length + ' new image file(s) (already resized + converted to .webp).\n\n' +
+    'How to apply:\n' +
+    '1. Copy the files from assets/illustrations/ in this zip into your site\'s assets/illustrations/ folder.\n' +
+    '2. Replace paintings.js and sitemap.xml with the copies in this zip.\n' +
+    '3. If you removed images in the editor, delete their old files from assets/illustrations/ manually — export only adds new ones.\n' +
+    '4. Deploy as usual.\n' +
+    '\nTip: in Chrome/Edge, click Save and pick your site folder once — after that Save writes straight to disk, no zip needed.\n'
+  );
   const blob = await zip.generateAsync({ type: 'blob' });
   downloadBlob(blob, 'portfolio-export-' + new Date().toISOString().slice(0, 10) + '.zip');
+}
+
+async function writeFileToHandle(dirHandle, relativePath, contents) {
+  const parts = relativePath.split('/');
+  let dir = dirHandle;
+  for (let i = 0; i < parts.length - 1; i++) {
+    dir = await dir.getDirectoryHandle(parts[i], { create: true });
+  }
+  const fileHandle = await dir.getFileHandle(parts[parts.length - 1], { create: true });
+  const writable = await fileHandle.createWritable();
+  await writable.write(contents);
+  await writable.close();
+}
+
+async function exportDirect(payload, dirHandle) {
+  for (const f of payload.newImages) {
+    await writeFileToHandle(dirHandle, f.relPath, f.blob);
+  }
+  await writeFileToHandle(dirHandle, 'paintings.js', buildPaintingsJs(payload.entries));
+  await writeFileToHandle(dirHandle, 'sitemap.xml', buildSitemapXml(payload.entries));
+}
+
+/* ═══════════════════════ Site folder connection (File System Access API) ═══════════════════════ */
+const FS_ACCESS_SUPPORTED = 'showDirectoryPicker' in window;
+let siteDirHandle = null;
+const folderStatusEl = document.getElementById('folderStatus');
+
+function renderFolderStatus() {
+  if (!FS_ACCESS_SUPPORTED) {
+    folderStatusEl.textContent = 'This browser can only download a .zip on Save';
+    folderStatusEl.classList.remove('connected');
+    folderStatusEl.onclick = null;
+    return;
+  }
+  if (siteDirHandle) {
+    folderStatusEl.classList.add('connected');
+    folderStatusEl.innerHTML = '📁 ' + escapeHtml(siteDirHandle.name) + '<span class="reconnect">switch folder</span>';
+    folderStatusEl.querySelector('.reconnect').onclick = e => { e.stopPropagation(); pickFolder(); };
+    folderStatusEl.onclick = null;
+  } else {
+    folderStatusEl.classList.remove('connected');
+    folderStatusEl.textContent = 'Not connected to a folder — click Save to choose one';
+    folderStatusEl.onclick = () => pickFolder();
+  }
+}
+
+async function tryLoadStoredHandle() {
+  if (!FS_ACCESS_SUPPORTED) { renderFolderStatus(); return; }
+  try {
+    const handle = await idbGet('meta', 'dirHandle');
+    if (!handle) { renderFolderStatus(); return; }
+    siteDirHandle = handle; // permission is (re)requested at save time, which has the user gesture
+  } catch (e) { /* handle unreadable (folder moved/deleted) — ignore, user can reconnect */ }
+  renderFolderStatus();
+}
+
+async function pickFolder() {
+  if (!FS_ACCESS_SUPPORTED) return false;
+  try {
+    const handle = await window.showDirectoryPicker({ id: 'portfolio-site', mode: 'readwrite' });
+    try {
+      await handle.getFileHandle('paintings.js');
+    } catch (e) {
+      if (!confirm('This folder doesn\'t seem to contain a paintings.js — pick it anyway?')) return false;
+    }
+    siteDirHandle = handle;
+    await idbSet('meta', 'dirHandle', handle);
+    renderFolderStatus();
+    return true;
+  } catch (e) {
+    return false; // user cancelled the picker
+  }
 }
 
 /* ═══════════════════════ Rendering: dashboard grid ═══════════════════════ */
@@ -679,10 +805,12 @@ function renderImages(proj) {
   dz.addEventListener('click', () => { imageInput.dataset.targetUid = proj.uid; imageInput.click(); });
   dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
   dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
-  dz.addEventListener('drop', e => {
+  dz.addEventListener('drop', async e => {
     e.preventDefault();
     dz.classList.remove('dragover');
-    addImagesToProject(proj, e.dataTransfer.files);
+    if (!e.dataTransfer.files.length) return;
+    toast('Processing image' + (e.dataTransfer.files.length === 1 ? '' : 's') + '…');
+    await addImagesToProject(proj, e.dataTransfer.files);
     renderImages(proj);
     renderGrid();
   });
@@ -720,15 +848,21 @@ function attachImageDrag(tile, proj) {
   });
 }
 
-function addImagesToProject(proj, fileList) {
+async function addImagesToProject(proj, fileList) {
   const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
-  files.forEach(file => {
-    const id = uid();
-    const name = sanitizeFilename(file.name);
-    const url = URL.createObjectURL(file);
-    proj.images.push({ uid: id, kind: 'blob', name, caption: '', blob: file, url });
-    idbSet('blobs', id, file);
-  });
+  for (const file of files) {
+    try {
+      const webpBlob = await resizeToWebp(file);
+      const id = uid();
+      const name = sanitizeFilename(file.name);
+      const url = URL.createObjectURL(webpBlob);
+      proj.images.push({ uid: id, kind: 'blob', name, caption: '', blob: webpBlob, url });
+      idbSet('blobs', id, webpBlob);
+    } catch (err) {
+      console.error(err);
+      toast('Could not process ' + file.name);
+    }
+  }
   scheduleSave();
 }
 
@@ -742,10 +876,11 @@ function removeImage(proj, imUid) {
   scheduleSave();
 }
 
-imageInput.addEventListener('change', () => {
+imageInput.addEventListener('change', async () => {
   const proj = projects.find(p => p.uid === imageInput.dataset.targetUid);
   if (proj && imageInput.files.length) {
-    addImagesToProject(proj, imageInput.files);
+    toast('Processing image' + (imageInput.files.length === 1 ? '' : 's') + '…');
+    await addImagesToProject(proj, imageInput.files);
     renderImages(proj);
     renderGrid();
   }
@@ -786,22 +921,47 @@ document.getElementById('resetBtn').addEventListener('click', async () => {
   toast('Cleared');
 });
 
-const exportBtn = document.getElementById('exportBtn');
-exportBtn.addEventListener('click', async () => {
-  if (!projects.length) { alert('Nothing to export yet.'); return; }
+const saveBtn = document.getElementById('saveBtn');
+async function handleSave() {
+  if (saveBtn.disabled) return;
+  if (!projects.length) { alert('Nothing to save yet.'); return; }
   const incomplete = projects.filter(p => !p.title.trim() || p.images.length === 0);
-  if (incomplete.length && !confirm(incomplete.length + ' project(s) are missing a title or an image. Export anyway?')) return;
-  exportBtn.disabled = true;
-  exportBtn.textContent = 'Exporting…';
+  if (incomplete.length && !confirm(incomplete.length + ' project(s) are missing a title or an image. Save anyway?')) return;
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
   try {
-    await doExport();
-    toast('Exported — check your downloads');
+    const payload = buildExportPayload();
+
+    if (FS_ACCESS_SUPPORTED) {
+      if (!siteDirHandle) await pickFolder(); // first Save ever: ask which folder to write to
+      if (siteDirHandle) {
+        try {
+          const perm = await siteDirHandle.requestPermission({ mode: 'readwrite' }); // click = user gesture
+          if (perm === 'granted') {
+            await exportDirect(payload, siteDirHandle);
+            toast('Saved to ' + siteDirHandle.name + ' — images resized + converted to webp');
+            return;
+          }
+        } catch (err) {
+          console.error(err);
+          // folder likely moved/deleted/revoked — fall through to zip below
+        }
+      }
+    }
+
+    await exportAsZip(payload);
+    toast(FS_ACCESS_SUPPORTED ? 'Couldn\'t write to the folder — downloaded a zip instead' : 'Downloaded a zip — unzip it into your site folder');
   } catch (err) {
-    alert('Export failed: ' + err.message);
+    alert('Save failed: ' + err.message);
   } finally {
-    exportBtn.disabled = false;
-    exportBtn.textContent = 'Export changes';
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save';
   }
+}
+saveBtn.addEventListener('click', handleSave);
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); handleSave(); }
 });
 
 /* ═══════════════════════ Toast ═══════════════════════ */
@@ -816,6 +976,7 @@ function toast(msg) {
 
 /* ═══════════════════════ Init ═══════════════════════ */
 (async function init() {
+  await tryLoadStoredHandle();
   const had = await loadMeta();
   if (!had) {
     try {

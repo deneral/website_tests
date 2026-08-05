@@ -14,9 +14,9 @@ const PAINTINGS = [
     desc: "A sprawling ancient forest bathed in light.",
     images: [
       { src: "assets/illustrations/forest_bloomborrow_final.webp" },
-      { src: "assets/illustrations/forest_bloomburrow_card_frame.jpg" },
-      { src: "assets/illustrations/forest_bloomborrow_drawing.jpg" },
-      { src: "assets/illustrations/forest_bloomborrow_thumbs.jpg" },
+      { src: "assets/illustrations/forest_bloomburrow_card_frame.webp" },
+      { src: "assets/illustrations/forest_bloomborrow_drawing.webp" },
+      { src: "assets/illustrations/forest_bloomborrow_thumbs.webp" },
     ],
   },
   {
