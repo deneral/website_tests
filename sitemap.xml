@@ -3,38 +3,43 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://www.paolointerno.com/</loc>
-    <lastmod>2026-08-05</lastmod>
+    <lastmod>2026-10-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://www.paolointerno.com/assets/illustrations/forest_bloomborrow_final.webp</image:loc>
-      <image:title>Forest — Fantasy Landscape Illustration by Paolo Internò</image:title>
-      <image:caption>A sprawling ancient forest bathed in light. Digital painting, 2026.</image:caption>
+      <image:loc>https://www.paolointerno.com/assets/illustrations/spire_at_dusk_final.webp</image:loc>
+      <image:title>Spire at Dusk — Environment Illustration by Paolo Internò</image:title>
+      <image:caption>A lone crystal spire crowned with blue flame rises from a desert plain at sunset. Digital painting.</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://www.paolointerno.com/assets/illustrations/plains_final.webp</image:loc>
-      <image:title>Plains — Environment Landscape Illustration by Paolo Internò</image:title>
-      <image:caption>Wide-open grassland at golden hour. Digital painting, 2026.</image:caption>
+      <image:loc>https://www.paolointerno.com/assets/illustrations/bone_cavern_final.webp</image:loc>
+      <image:title>Bone Cavern — Fantasy Environment Art by Paolo Internò</image:title>
+      <image:caption>A cavern mouth framed by enormous bone tusks. Digital painting, 2026.</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://www.paolointerno.com/assets/illustrations/umbral_rift_final.webp</image:loc>
-      <image:title>Umbral Rift — Fantasy Environment Art by Paolo Internò</image:title>
-      <image:caption>A monumental beast-mouth cavern entrance. Digital painting, 2026.</image:caption>
+      <image:loc>https://www.paolointerno.com/assets/illustrations/vine_canyon_final.webp</image:loc>
+      <image:title>Vine Canyon — Fantasy Landscape Illustration by Paolo Internò</image:title>
+      <image:caption>A stream winds through a canyon of giant twisting vines and weathered stone. Digital painting, 2026.</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://www.paolointerno.com/assets/illustrations/mana_breach_final.webp</image:loc>
-      <image:title>Mana Breach — Fantasy Landscape Art by Paolo Internò</image:title>
-      <image:caption>An arcane rupture tears through a ruined landscape. Digital painting, 2025.</image:caption>
+      <image:loc>https://www.paolointerno.com/assets/illustrations/sanctuary_gate_final.webp</image:loc>
+      <image:title>Sanctuary Gate — Fantasy Landscape Art by Paolo Internò</image:title>
+      <image:caption>A vine-covered stone sanctuary crowned by a great ring, with a wheel-like gate at its foot. Digital painting, 2025.</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://www.paolointerno.com/assets/illustrations/heartroot_vault_final.webp</image:loc>
-      <image:title>Heartroot Vault — Environment Illustration by Paolo Internò</image:title>
-      <image:caption>A vast underground root network forms a cathedral-like natural vault. Digital painting, 2025.</image:caption>
+      <image:loc>https://www.paolointerno.com/assets/illustrations/stone_arch_final.webp</image:loc>
+      <image:title>Stone Arch — Environment Landscape Illustration by Paolo Internò</image:title>
+      <image:caption>A desert path winds beneath a natural stone arch filled with light. Digital painting.</image:caption>
     </image:image>
     <image:image>
-      <image:loc>https://www.paolointerno.com/assets/illustrations/the_artifact_vault_final.webp</image:loc>
-      <image:title>The Artifact Vault — Environment Illustration by Paolo Internò</image:title>
-      <image:caption>An old catacomb guarded by creepy spiders. Digital painting, 2025.</image:caption>
+      <image:loc>https://www.paolointerno.com/assets/illustrations/sunset_tower_final.webp</image:loc>
+      <image:title>Sunset Tower — Environment Landscape Illustration by Paolo Internò</image:title>
+      <image:caption>A lone stone tower stands in golden grassland beneath a sunset sky. Digital painting, 2026.</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.paolointerno.com/assets/illustrations/ancient_grove_final.webp</image:loc>
+      <image:title>Ancient Grove — Environment Illustration by Paolo Internò</image:title>
+      <image:caption>Massive ancient roots and trunks rise above a glowing green pool. Digital painting, 2025.</image:caption>
     </image:image>
   </url>
 </urlset>

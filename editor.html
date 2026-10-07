@@ -6,24 +6,21 @@
 <meta name="robots" content="noindex, nofollow" />
 <title>Portfolio Editor — Paolo Internò</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" />
 
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
 
   :root {
-    --ink: #f4ece0;
-    --ink-mid: #d9c9b3;
-    --ink-dim: #8c7d6b;
-    --paper: #201a14;
-    --paper-dark: #100c08;
-    --paper-mid: #17120d;
-    --accent: #c89a4d;
+    --ink: #edebe4;
+    --ink-mid: #c6c5c0;
+    --ink-dim: #8a8a90;
+    --paper: #131417;
+    --paper-dark: #0b0c0e;
+    --paper-mid: #101114;
+    --accent: #ebb259;
     --danger: #d98a76;
-    --font-serif: 'Fraunces', Georgia, serif;
-    --font-sans: 'Manrope', sans-serif;
+    --font-serif: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --radius: 3px;
     --tr: .18s ease
   }
@@ -37,17 +34,17 @@
     display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     padding: 1.1rem 1.75rem;
     background: var(--paper);
-    border-bottom: 1px solid rgba(244,236,224,.08);
+    border-bottom: 1px solid rgba(237,235,228,.08);
     flex-wrap: wrap
   }
-  .brand h1 { font-family: var(--font-serif); font-style: italic; font-weight: 500; font-size: 19px }
+  .brand h1 { font-family: var(--font-serif); font-weight: 500; font-size: 19px }
   .brand span { display: block; font-size: 11px; color: var(--ink-dim); letter-spacing: .3px; margin-top: 2px }
   .topbar-actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap }
 
   .btn {
     font-family: var(--font-sans); font-size: 12.5px; letter-spacing: .2px; font-weight: 500;
     padding: .55rem 1rem; border-radius: var(--radius);
-    border: 1px solid rgba(244,236,224,.15); background: transparent; color: var(--ink-mid);
+    border: 1px solid rgba(237,235,228,.15); background: transparent; color: var(--ink-mid);
     cursor: pointer; transition: var(--tr)
   }
   .btn:hover { border-color: var(--accent); color: var(--ink) }
@@ -71,27 +68,27 @@
   .pcard {
     position: relative; border-radius: var(--radius); overflow: hidden;
     background: var(--paper-mid); aspect-ratio: 4/3; cursor: grab;
-    border: 1px solid rgba(244,236,224,.06)
+    border: 1px solid rgba(237,235,228,.06)
   }
   .pcard.dragging { opacity: .35 }
   .pcard.drop-target { outline: 2px solid var(--accent); outline-offset: -2px }
   .pcard img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none }
   .pcard .empty-cover { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--ink-dim); font-size: 11px }
   .pcard .pinfo { position: absolute; left: 0; right: 0; bottom: 0; padding: .6rem .7rem; background: linear-gradient(to top, rgba(16,12,8,.88), transparent) }
-  .pcard .ptitle { font-family: var(--font-serif); font-style: italic; font-size: 13.5px; color: var(--ink) }
+  .pcard .ptitle { font-family: var(--font-serif); font-size: 13.5px; color: var(--ink) }
   .pcard .pmeta { font-size: 10px; color: var(--ink-dim); margin-top: 1px }
   .pcard .pactions { position: absolute; top: .5rem; right: .5rem; display: flex; gap: .35rem; opacity: 0; transition: opacity var(--tr) }
   .pcard:hover .pactions { opacity: 1 }
 
   .icon-btn {
     width: 26px; height: 26px; border-radius: 50%; background: rgba(16,12,8,.78);
-    border: 1px solid rgba(244,236,224,.15); color: var(--ink-mid);
+    border: 1px solid rgba(237,235,228,.15); color: var(--ink-mid);
     display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px
   }
   .icon-btn:hover { color: var(--ink); border-color: var(--accent) }
 
   .add-tile {
-    border: 1.5px dashed rgba(244,236,224,.18); border-radius: var(--radius); aspect-ratio: 4/3;
+    border: 1.5px dashed rgba(237,235,228,.18); border-radius: var(--radius); aspect-ratio: 4/3;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem;
     color: var(--ink-dim); cursor: pointer; transition: var(--tr)
   }
@@ -100,7 +97,7 @@
   .add-tile span { font-size: 11.5px; letter-spacing: .3px }
 
   .empty-state { grid-column: 1/-1; text-align: center; padding: 5rem 1rem; color: var(--ink-dim) }
-  .empty-state h2 { font-family: var(--font-serif); font-style: italic; color: var(--ink-mid); font-weight: 500; font-size: 20px; margin-bottom: .5rem }
+  .empty-state h2 { font-family: var(--font-serif); color: var(--ink-mid); font-weight: 500; font-size: 20px; margin-bottom: .5rem }
   .empty-state p { font-size: 13px; max-width: 380px; margin: 0 auto; line-height: 1.6 }
 
   /* ── Panel ── */
@@ -112,14 +109,14 @@
 
   .panel {
     position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 92vw;
-    background: var(--paper); border-left: 1px solid rgba(244,236,224,.08);
+    background: var(--paper); border-left: 1px solid rgba(237,235,228,.08);
     transform: translateX(100%); transition: transform .3s cubic-bezier(.25,.46,.45,.94);
     z-index: 31; display: flex; flex-direction: column
   }
   .panel.open { transform: translateX(0) }
 
-  .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.4rem; border-bottom: 1px solid rgba(244,236,224,.08) }
-  .panel-head h2 { font-family: var(--font-serif); font-style: italic; font-size: 16px; font-weight: 500 }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.4rem; border-bottom: 1px solid rgba(237,235,228,.08) }
+  .panel-head h2 { font-family: var(--font-serif); font-size: 16px; font-weight: 500 }
   .panel-close { background: none; border: none; color: var(--ink-dim); font-size: 22px; cursor: pointer; line-height: 1; padding: .2rem }
   .panel-close:hover { color: var(--ink) }
 
@@ -128,7 +125,7 @@
   .field { margin-bottom: 1rem }
   .field label { display: block; font-size: 10.5px; letter-spacing: .5px; text-transform: uppercase; color: var(--ink-dim); margin-bottom: .35rem }
   .field input, .field textarea {
-    width: 100%; background: var(--paper-mid); border: 1px solid rgba(244,236,224,.1);
+    width: 100%; background: var(--paper-mid); border: 1px solid rgba(237,235,228,.1);
     border-radius: var(--radius); padding: .55rem .65rem; color: var(--ink);
     font-family: var(--font-sans); font-size: 13px; font-weight: 300
   }
@@ -145,7 +142,7 @@
   .image-cell { display: flex; flex-direction: column; gap: .3rem; min-width: 0 }
   .image-tile {
     position: relative; border-radius: var(--radius); overflow: hidden; background: var(--paper-mid);
-    aspect-ratio: 1/1; cursor: grab; border: 1px solid rgba(244,236,224,.08); min-width: 0
+    aspect-ratio: 1/1; cursor: grab; border: 1px solid rgba(237,235,228,.08); min-width: 0
   }
   .image-tile.dragging { opacity: .35 }
   .image-tile.drop-target { outline: 2px solid var(--accent); outline-offset: -2px }
@@ -162,14 +159,14 @@
   .image-tile .rm-btn:hover { color: #ffb7a3 }
 
   .caption-input {
-    width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(244,236,224,.1);
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(237,235,228,.1);
     color: var(--ink-mid); font-size: 10.5px; padding: .15rem 0; font-family: var(--font-sans)
   }
   .caption-input:focus { outline: none; border-color: var(--accent) }
   .caption-input::placeholder { color: var(--ink-dim) }
 
   .dropzone {
-    border: 1.5px dashed rgba(244,236,224,.18); border-radius: var(--radius); aspect-ratio: 1/1;
+    border: 1.5px dashed rgba(237,235,228,.18); border-radius: var(--radius); aspect-ratio: 1/1;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
     color: var(--ink-dim); cursor: pointer; transition: var(--tr); font-size: 10px; text-align: center; padding: .3rem;
     min-width: 0; overflow: hidden
@@ -177,13 +174,13 @@
   .dropzone:hover, .dropzone.dragover { border-color: var(--accent); color: var(--accent) }
   .dropzone .plus { font-size: 18px; line-height: 1 }
 
-  .panel-foot { padding: 1rem 1.4rem; border-top: 1px solid rgba(244,236,224,.08); display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; align-items: center }
+  .panel-foot { padding: 1rem 1.4rem; border-top: 1px solid rgba(237,235,228,.08); display: flex; flex-wrap: wrap; gap: .5rem; justify-content: space-between; align-items: center }
   .autosave-note { font-size: 10px; color: var(--ink-dim); text-align: right; flex: 1; min-width: 140px }
 
   /* ── Toast ── */
   .toast {
     position: fixed; bottom: 1.4rem; left: 50%; transform: translateX(-50%) translateY(10px);
-    background: var(--paper-mid); border: 1px solid rgba(244,236,224,.12); color: var(--ink);
+    background: var(--paper-mid); border: 1px solid rgba(237,235,228,.12); color: var(--ink);
     padding: .6rem 1.1rem; border-radius: var(--radius); font-size: 12.5px;
     opacity: 0; pointer-events: none; transition: all .25s ease; z-index: 50
   }

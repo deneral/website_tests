@@ -40,7 +40,7 @@ function buildImageBlock(p) {
   const imageSrc = p.images[0].src;
   const url = `${SITE_URL}/${imageSrc}`;
   const title = `${p.title} — ${p.seoCategory} by Paolo Internò`;
-  const caption = `${p.desc} ${p.medium}, ${p.year}.`;
+  const caption = `${p.desc} ${p.medium}${p.year ? ', ' + p.year : ''}.`;
   return [
     '    <image:image>',
     `      <image:loc>${xmlEscape(url)}</image:loc>`,

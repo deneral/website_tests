@@ -21,9 +21,9 @@ PAINTINGS.forEach((p, i) => {
     <figure>
       <picture>
         <source srcset="${cover}" type="image/webp"${isFirst ? '' : ''} />
-        <img src="${cover}" alt="${p.title} — illustration by Paolo Internò"${isFirst ? ' fetchpriority="high"' : ' loading="lazy"'} />
+        <img src="${cover}" alt="${p.title} — environment painting by Paolo Internò"${isFirst ? ' fetchpriority="high"' : ' loading="lazy"'} />
       </picture>
-      <figcaption>${p.title} — ${p.desc} ${p.medium} · ${p.year}.</figcaption>
+      <figcaption>${p.title} — ${p.desc} ${p.medium}${p.year ? ' · ' + p.year : ''}.</figcaption>
     </figure>
     <div class="item-overlay"><span class="item-label">${p.title}</span></div>`;
   el.style.animationDelay = Math.min(0.04 + i * 0.05, 0.5) + 's';
@@ -66,7 +66,7 @@ window.addEventListener('resize', () => { clearTimeout(_rt); _rt = setTimeout(ap
 // in order, exactly as arranged in editor.html.
 const data = PAINTINGS.map((p, i) => ({
   i, title: p.title,
-  meta: p.medium + ' · ' + p.year,
+  meta: p.year ? p.medium + ' · ' + p.year : p.medium,
   desc: p.desc,
   images: p.images,
   el: items[i]
@@ -90,12 +90,12 @@ function buildScrollArea(d) {
     wrap.className = 'lightbox-process-item';
     const img = document.createElement('img');
     img.src = s.src;
-    img.alt = d.title;
+    img.alt = s.caption ? d.title + ' — ' + s.caption.toLowerCase() : d.title;
     img.loading = idx === 0 ? 'eager' : 'lazy';
     wrap.appendChild(img);
     if (s.caption) {
       const cap = document.createElement('p');
-      cap.style.cssText = 'font-family:var(--font-serif);font-size:12px;font-style:italic;color:var(--ink-dim);text-align:center;margin-top:-.4rem';
+      cap.className = 'process-label';
       cap.textContent = s.caption;
       wrap.appendChild(cap);
     }
